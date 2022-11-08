@@ -8,25 +8,32 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-read_csv('SVI2020_US_COUNTY.csv')
+
+# 
+# county_SVI = read_csv(
+#   url('https://svi.cdc.gov/Documents/Data/2020_SVI_Data/CSV/SVI2020_US_COUNTY.csv')
+#   )%>%
+#   write_csv('SVI2020_US_COUNTY.csv')
+# 
+# census_SVI = read_csv(url('https://svi.cdc.gov/Documents/Data/2020_SVI_Data/CSV/SVI2020_US.csv'))%>%
+#   write_csv('SVI2020_US.csv')
+# 
+# CDI_data = read_csv(url('https://data.cdc.gov/api/views/g4ie-h725/rows.csv'))%>%
+#   write_csv('CDI_data.csv')
+
+
+
+census_SVI = read_csv('SVI2020_US.csv')
+county_SVI = read_csv('SVI2020_US.csv')
+CDI_data = read_csv('CDI_data.csv')
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r 2020}
+CDI_data%>%
+  filter(YearEnd == 2020)%>%
+  write_csv('CDI_2020.csv')
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
