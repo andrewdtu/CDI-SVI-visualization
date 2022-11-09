@@ -35,8 +35,22 @@ heart = CDI_fulldata%>%
   filter(YearEnd == 2018)%>%
   filter(Topic == 'Cardiovascular Disease')%>%
   #group_by(Question)%>%
-  filter(Question =='Mortality from coronary heart disease')
+  filter(Question =='Mortality from total cardiovascular diseases')%>%
+  filter(DataValueTypeID == 'AGEADJRATE')
   
 
 ```
 
+
+```{r counts of questions}
+heart = CDI_fulldata%>%
+  filter(YearEnd == 2018)%>%
+  filter(Topic == 'Cardiovascular Disease')%>%
+  group_by(Question)%>%
+  count()
+
+# CDI_fulldata%>%
+# 
+#   group_by(Topic)%>%
+#   count()
+```
