@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-
+# 
 # 
 # county_SVI = read_csv(
 #   url('https://svi.cdc.gov/Documents/Data/2020_SVI_Data/CSV/SVI2020_US_COUNTY.csv')
@@ -24,16 +24,19 @@ library(tidyverse)
 
 
 census_SVI = read_csv('SVI2020_US.csv')
-county_SVI = read_csv('SVI2020_US.csv')
-CDI_data = read_csv('CDI_data.csv')
-
+county_SVI = read_csv('SVI2020_US_COUNTY.csv')
+CDI_data = read_csv('CDI_2020.csv')
+CDI_fulldata = read_csv('CDI_data.csv')
 ```
 
 
 ```{r 2020}
-CDI_data%>%
-  filter(YearEnd == 2020)%>%
-  write_csv('CDI_2020.csv')
+heart = CDI_fulldata%>%
+  filter(YearEnd == 2018)%>%
+  filter(Topic == 'Cardiovascular Disease')%>%
+  #group_by(Question)%>%
+  filter(Question =='Mortality from coronary heart disease')
+  
 
 ```
 
