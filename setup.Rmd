@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(usmap)
 # 
 # 
 # county_SVI = read_csv(
@@ -59,15 +60,12 @@ heart = CDI_data%>%
   filter(is.na(DatavalueFootnote))%>%
   select(LocationAbbr,Stratification1,DataValue)%>%
   pivot_wider(names_from = Stratification1,values_from = DataValue)%>%
-  mutate(gender_diff = Male-Female)
-# heart = CDI_fulldata%>%
-#   filter(YearEnd == 2018)%>%
-#   filter(Topic == 'Cardiovascular Disease')%>%
-#   group_by(Question)%>%
-#   count()
+  mutate(gender_diff = Male-Female)%>%
+  mutate(state = LocationAbbr)
 
-# CDI_fulldata%>%
-# 
-#   group_by(Topic)%>%
-#   count()
+
+plot_usmap(regions = 'states', data = heart, values = 'gender_diff')+
+   labs(title = "Heart disease mortality rate gender difference", subtitle = "2018 State level case per 100k")+
+  scale_fill_distiller(palette = 'Oranges', direction = 1, name = 'M-F case rate per 100k')+
+  theme(legend.position = "right")
 ```
