@@ -42,6 +42,11 @@ shinyUI(fluidPage(
           plotlyOutput('svidiff')
         ),
       ),
+      tabPanel("Map",
+        fluidRow(
+         
+        ),
+      ),
       
     ),
     
