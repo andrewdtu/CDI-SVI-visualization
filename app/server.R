@@ -41,7 +41,7 @@ shinyServer(function(input, output) {
       filter(data_type == input$datatype)%>%
       {unique(.$Stratification1)}
     
-    selectInput('group1', label = 'Group 1', choices = group1.options, selected = 'Female')
+    selectInput('group1', label = 'Group 1', choices = group1.options, selected = 'Male')
   })
   
   output$group2 = renderUI({
@@ -51,21 +51,31 @@ shinyServer(function(input, output) {
       filter(data_type == input$datatype)%>%
       {unique(.$Stratification1)}
     
-    selectInput('group2', label = 'Group 2', choices = group2.options, selected = 'Male')
+    selectInput('group2', label = 'Group 2', choices = group2.options, selected = 'Female')
   })
   
-  df = reactive({
+  df <- reactive({
     CDI_data%>%
       filter(Topic == input$topic)%>%
       filter(Question == input$question)%>%
       filter(data_type == input$datatype)%>%
       filter(Stratification1 %in% c(input$group1,input$group2))%>%
-      #pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
-      # mutate(diff = input$group1 - input$group2)%>%
-      # mutate(state = LocationAbbr)%>%
+      select(LocationAbbr,Stratification1,DataValue)%>%
+      pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
+      mutate(diff = get(input$group1) - get(input$group2))%>%
+      rename(state = LocationAbbr)%>%
+      
       left_join(state_SVI)
   })
 
-  #output$table=renderDataTable(df)
+  
+  
+  output$table=renderDataTable({
+    df()
+  })
+  
+  output$debug = renderText({
+    print()
+  })
 
 })

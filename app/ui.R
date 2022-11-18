@@ -22,10 +22,30 @@ shinyUI(fluidPage(
       column(4, uiOutput('questions')),
       column(4, uiOutput('datatype'))
     ),
+    
     fluidRow(
       column(6, uiOutput('group1')),
       column(6, uiOutput('group2'))
     ),
-    tableOutput('table')
-
+    
+    
+    tabsetPanel(type = 'tabs',
+      
+      tabPanel("Table",
+        fluidRow(
+         dataTableOutput('table')
+        ),
+      ),
+      
+      tabPanel("SVI and Disparity",
+        fluidRow(
+          
+        ),
+      ),
+      
+    ),
+    
+    fluidRow(
+      textOutput('debug')
+    )
 ))
