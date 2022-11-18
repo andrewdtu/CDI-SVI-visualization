@@ -13,6 +13,9 @@
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
+  output$debug = renderText({
+    print('text')
+  })
   
   output$questions = renderUI({
     
@@ -54,7 +57,7 @@ shinyServer(function(input, output) {
     selectInput('group2', label = 'Group 2', choices = group2.options, selected = 'Female')
   })
   
-  df <- reactive({
+  df = reactive({
     CDI_data%>%
       filter(Topic == input$topic)%>%
       filter(Question == input$question)%>%
@@ -64,18 +67,23 @@ shinyServer(function(input, output) {
       pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
       mutate(diff = get(input$group1) - get(input$group2))%>%
       rename(state = LocationAbbr)%>%
-      
+      drop_na()%>%
       left_join(state_SVI)
   })
-
-  
   
   output$table=renderDataTable({
     df()
   })
   
-  output$debug = renderText({
-    print()
+  output$svidiff = renderPlotly({
+    fit = lm(data = df(), diff~state_SVI)
+    df()%>%
+      plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
+      add_markers(y = ~diff) %>% 
+      add_lines(x = ~state_SVI, y = fitted(fit))
+      
   })
+  
+
 
 })

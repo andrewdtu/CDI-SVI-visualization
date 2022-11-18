@@ -39,7 +39,7 @@ shinyUI(fluidPage(
       
       tabPanel("SVI and Disparity",
         fluidRow(
-          
+          plotlyOutput('svidiff')
         ),
       ),
       

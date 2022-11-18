@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 library(shinythemes)
 library(DT)
+library(plotly)
 
 county_SVI = read_csv('SVI2018_US_COUNTY.csv')
 
