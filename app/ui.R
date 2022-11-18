@@ -7,27 +7,25 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
+
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-
+    
+    theme = shinytheme("simplex"),
+  
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("2018 Chronic Diseases in the US and Social Vulnerability Index Correlation"),
+    
+    fluidRow(
+      column(4, selectInput('topic',label = 'Chronic Disease', choices = topic.options, selected = 'Cardiovascular Disease')),
+      column(4, uiOutput('questions')),
+      column(4, uiOutput('datatype'))
+    ),
+    fluidRow(
+      column(6, uiOutput('group1')),
+      column(6, uiOutput('group2'))
+    ),
+    tableOutput('table')
 
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
 ))

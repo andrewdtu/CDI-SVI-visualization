@@ -7,24 +7,65 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
 
 
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  
+  
+  output$questions = renderUI({
+    
+    question.options = CDI_data%>%
+      filter(Topic == input$topic)%>%
+      {unique(.$Question)}
+    
+    
+    selectInput('question', label = 'Metric', choices = question.options, selected = 'Mortality from total cardiovascular diseases')
+    
+  })
+  
+  output$datatype = renderUI({
+    datatype.options = CDI_data%>%
+      filter(Topic == input$topic)%>%
+      filter(Question == input$question)%>%
+      {unique(.$data_type)}
+    
+    selectInput('datatype', label = 'Unit', choices = datatype.options, selected = 'Age-adjusted Rate cases per 100,000')
+  })
+  
+  output$group1 = renderUI({
+    group1.options = CDI_data%>%
+      filter(Topic == input$topic)%>%
+      filter(Question == input$question)%>%
+      filter(data_type == input$datatype)%>%
+      {unique(.$Stratification1)}
+    
+    selectInput('group1', label = 'Group 1', choices = group1.options, selected = 'Female')
+  })
+  
+  output$group2 = renderUI({
+    group2.options = CDI_data%>%
+      filter(Topic == input$topic)%>%
+      filter(Question == input$question)%>%
+      filter(data_type == input$datatype)%>%
+      {unique(.$Stratification1)}
+    
+    selectInput('group2', label = 'Group 2', choices = group2.options, selected = 'Male')
+  })
+  
+  df = reactive({
+    CDI_data%>%
+      filter(Topic == input$topic)%>%
+      filter(Question == input$question)%>%
+      filter(data_type == input$datatype)%>%
+      filter(Stratification1 %in% c(input$group1,input$group2))%>%
+      #pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
+      # mutate(diff = input$group1 - input$group2)%>%
+      # mutate(state = LocationAbbr)%>%
+      left_join(state_SVI)
+  })
 
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-
-    })
+  #output$table=renderDataTable(df)
 
 })
