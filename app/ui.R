@@ -30,7 +30,11 @@ shinyUI(fluidPage(
     
     
     tabsetPanel(type = 'tabs',
-      
+      tabPanel("Map",
+        fluidRow(
+         plotlyOutput('diffmap')
+       ),
+      ),
       tabPanel("Table",
         fluidRow(
          dataTableOutput('table')
@@ -42,11 +46,7 @@ shinyUI(fluidPage(
           plotlyOutput('svidiff')
         ),
       ),
-      tabPanel("Map",
-        fluidRow(
-         
-        ),
-      ),
+      
       
     ),
     

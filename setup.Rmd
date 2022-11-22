@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(usmap)
 library(ggpmisc)
+library(plotly)
 # 
 # 
 # county_SVI = read_csv(
@@ -91,11 +92,25 @@ ggplot(heart,aes(x = state_SVI,y = gender_diff))+
 ```
 
 ```{r random}
-question.options = CDI_data%>%
-  filter(Topic == 'Cardiovascular Disease')%>% 
-  {unique(.$Question)}
-
-CDI_data%>%
-  unite('data_type', DataValueType:DataValueUnit, sep = ' ', remove = TRUE,na.rm = TRUE)  
-
+# question.options = CDI_data%>%
+#   filter(Topic == 'Cardiovascular Disease')%>% 
+#   {unique(.$Question)}
+# 
+# CDI_data%>%
+#   unite('data_type', DataValueType:DataValueUnit, sep = ' ', remove = TRUE,na.rm = TRUE)  
+plot_geo(heart,locationmode='USA-states')%>%
+  add_trace(locations = ~state,z = ~gender_diff, color = ~gender_diff,colors = 'Oranges')%>%
+  layout(
+    title = 'Title WIP: make it some combination of the options',
+    geo = c(scope = 'usa',projection = list(type = 'albers usa'))
+  )
+plot_diff <- function(data,location,value){
+  plot_geo(data,locationmode='USA-states')%>%
+    add_trace(locations = location,z = value, color = value, colors = 'Oranges')%>%
+    layout(
+      title = 'Title WIP: make it some combination of the options',
+      geo = c(scope = 'usa',projection = list(type = 'albers usa'))
+    )
+}
+plot_diff(heart,~state,~gender_diff)
 ```

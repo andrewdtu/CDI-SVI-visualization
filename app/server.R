@@ -84,6 +84,10 @@ shinyServer(function(input, output) {
       
   })
   
+  output$diffmap = renderPlotly({
+    plot_diff(df(),~state,~diff)
+  })
+  
 
 
 })

@@ -18,3 +18,12 @@ state_SVI = county_SVI%>%
   select(state,state_SVI)
 
 topic.options = unique(CDI_data$Topic)
+
+plot_diff <- function(data,location,value){
+  plot_geo(data,locationmode='USA-states')%>%
+    add_trace(locations = location,z = value, color = value, colors = 'Oranges')%>%
+    layout(
+      title = 'Title WIP: make it some combination of the options',
+      geo = c(scope = 'usa',projection = list(type = 'albers usa'))
+    )
+}
