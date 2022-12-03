@@ -14,12 +14,44 @@
 shinyServer(function(input, output) {
   
   output$debug = renderText({
-    print('text')
+    print(input$year)
   })
   
+  output$year = renderUI({
+    year.options = c('2010','2014','2016','2018')
+    
+    selectInput('year', label = 'Year', choices = year.options, selected = '2018')
+  })
+  
+  CDI_data = reactive({
+    read_csv(case_when(
+      input$year == 2010 ~ "CDI_2010.csv",
+      input$year == 2014 ~ "CDI_2014.csv",
+      input$year == 2016 ~ "CDI_2016.csv",
+      input$year == 2018 ~ "CDI_2018.csv",
+      #input$year == 2020 ~ "CDI_2020.csv"
+    ))%>%
+      unite('data_type', DataValueType:DataValueUnit, sep = ' ', remove = TRUE,na.rm = TRUE)
+     
+    
+  })
+  
+  state_SVI = reactive({
+    state_SVI_full%>%
+      filter(year == input$year)
+  })
+  
+  output$topic = renderUI({
+    topic.options = CDI_data()%>%
+    {unique(.$Topic)}
+    
+  selectInput('topic',label = 'Chronic Disease', choices = topic.options, selected = 'Cardiovascular Disease')
+  })
+    
+    
   output$questions = renderUI({
     
-    question.options = CDI_data%>%
+    question.options = CDI_data()%>%
       filter(Topic == input$topic)%>%
       {unique(.$Question)}
     
@@ -29,7 +61,7 @@ shinyServer(function(input, output) {
   })
   
   output$datatype = renderUI({
-    datatype.options = CDI_data%>%
+    datatype.options = CDI_data()%>%
       filter(Topic == input$topic)%>%
       filter(Question == input$question)%>%
       {unique(.$data_type)}
@@ -38,7 +70,7 @@ shinyServer(function(input, output) {
   })
   
   output$group1 = renderUI({
-    group1.options = CDI_data%>%
+    group1.options = CDI_data()%>%
       filter(Topic == input$topic)%>%
       filter(Question == input$question)%>%
       filter(data_type == input$datatype)%>%
@@ -48,7 +80,7 @@ shinyServer(function(input, output) {
   })
   
   output$group2 = renderUI({
-    group2.options = CDI_data%>%
+    group2.options = CDI_data()%>%
       filter(Topic == input$topic)%>%
       filter(Question == input$question)%>%
       filter(data_type == input$datatype)%>%
@@ -58,7 +90,7 @@ shinyServer(function(input, output) {
   })
   
   df = reactive({
-    CDI_data%>%
+    CDI_data()%>%
       filter(Topic == input$topic)%>%
       filter(Question == input$question)%>%
       filter(data_type == input$datatype)%>%
@@ -68,11 +100,11 @@ shinyServer(function(input, output) {
       mutate(diff = get(input$group1) - get(input$group2))%>%
       rename(state = LocationAbbr)%>%
       drop_na()%>%
-      left_join(state_SVI)
+      left_join(state_SVI())
   })
   
   output$table=renderDataTable({
-    df()
+    CDI_data()
   })
   
   output$svidiff = renderPlotly({

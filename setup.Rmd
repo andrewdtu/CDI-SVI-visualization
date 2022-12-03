@@ -34,11 +34,21 @@ library(plotly)
 #census_SVI = read_csv('SVI2020_US.csv')
 county_SVI = read_csv('SVI2018_US_COUNTY.csv')
 
-# CDI_fulldata = read_csv('CDI_data.csv')%>%
-#   filter(YearEnd == 2018)%>%
-#   write_csv('CDI_2018.csv')
+CDI_fulldata = read_csv('CDI_data.csv')
 
-CDI_data = read_csv('CDI_2018.csv')
+#CDI_data = read_csv('CDI_2018.csv')
+#CDI_fulldata = read_csv('CDI_data.csv')
+
+SVI_2010 = read_csv('SVI2010_US.csv')%>%
+  mutate(year = 2010)
+SVI_2014 = read_csv('SVI2014_US.csv')%>%
+  mutate(year = 2014)
+SVI_2016 = read_csv('SVI2016_US_COUNTY.csv')%>%
+  mutate(year = 2016)
+SVI_2018 = read_csv('SVI2018_US_COUNTY.csv')%>%
+  mutate(year = 2018)
+SVI_2020 = read_csv('SVI2020_US_COUNTY.csv')%>%
+  mutate(year = 2020)
 ```
 
 
@@ -113,4 +123,52 @@ plot_diff <- function(data,location,value){
     )
 }
 plot_diff(heart,~state,~gender_diff)
+
+
+```
+
+```{r split data}
+SVI_2010_new = SVI_2010%>%
+  mutate(ST_ABBR = STATE_ABBR)%>%
+  mutate(SPL_THEMES = S_PL_THEMES)
+
+SVI_full = bind_rows(SVI_2010_new,SVI_2014,SVI_2016,SVI_2018,SVI_2020)%>%
+  
+  group_by(year,ST_ABBR)%>%
+  filter(SPL_THEMES>0)%>%
+  mutate(popxsvi = E_TOTPOP*SPL_THEMES)%>%
+  summarise(state_totpop = sum(E_TOTPOP),state_SVI = sum(popxsvi)/state_totpop)%>%
+  mutate(state = ST_ABBR)%>%
+  select(state,state_SVI)%>%
+  write_csv('SVI_full.csv')
+```
+
+```{r CDI years}
+CDI_fulldata%>%
+  filter(YearEnd == 2010)%>%
+  write_csv('CDI_2010.csv')
+CDI_fulldata%>%
+  filter(YearEnd == 2014)%>%
+  write_csv('CDI_2014.csv')
+CDI_fulldata%>%
+  filter(YearEnd == 2016)%>%
+  write_csv('CDI_2016.csv')
+CDI_fulldata%>%
+  filter(YearEnd == 2018)%>%
+  write_csv('CDI_2018.csv')
+CDI_fulldata%>%
+  filter(YearEnd == 2020)%>%
+  write_csv('CDI_2020.csv')
+
+```
+```{r test}
+#CDI_2018 = read_csv('CDI_2018.csv')
+# SVI_2010_new%>%
+#   group_by(year,ST_ABBR)%>%
+#   filter(SPL_THEMES>0)%>%
+#   mutate(popxsvi = E_TOTPOP*SPL_THEMES)%>%
+#   summarise(state_totpop = sum(E_TOTPOP),state_SVI = sum(popxsvi)/state_totpop)%>%
+#   mutate(state = ST_ABBR)%>%
+#   select(state,state_SVI)%>%
+#   write_csv('SVI_full.csv')
 ```
