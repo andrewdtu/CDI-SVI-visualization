@@ -11,6 +11,7 @@ library(tidyverse)
 library(usmap)
 library(ggpmisc)
 library(plotly)
+library(heatmaply)
 # 
 # 
 # county_SVI = read_csv(
@@ -87,9 +88,10 @@ heart = CDI_2018%>%
   mutate(state = LocationAbbr)%>%
   left_join(state_SVI,"state")
 ```
+
 ```{r heatmap}
  
-heatmap = function(cdi, svi){
+heatmap_plot = function(cdi, svi){
   df = cdi%>%
     mutate(state = LocationAbbr)%>%
     filter(Topic == 'Cardiovascular Disease')%>%
@@ -98,9 +100,18 @@ heatmap = function(cdi, svi){
     filter(DataValueTypeID == 'AGEADJRATE')%>%
     select(state,Stratification1,DataValue)
   
+  svi = svi%>%
+    group_by(ST_ABBR)%>%
+    filter(SPL_THEMES>0)%>%
+    mutate(popxsvi = E_TOTPOP*SPL_THEMES)%>%
+    summarise(state_totpop = sum(E_TOTPOP),state_SVI = sum(popxsvi)/state_totpop)%>%
+    mutate(state = ST_ABBR)%>%
+    select(state,state_SVI)
+  
   states = unique(df$state)
   groups = unique(df$Stratification1)
   diff_arr = list()
+  
   for (i in groups){
     g1 = df%>%
       filter(Stratification1 == i)
@@ -109,34 +120,48 @@ heatmap = function(cdi, svi){
 
       
       g2 = df%>%
-        filter(Stratification1 == j)
+        filter(Stratification1 == j)%>%
+        left_join(g1,"state")%>%
+        mutate(diff = DataValue.x - DataValue.y)%>%
+        left_join(svi,"state")%>%
+        select(Stratification1.x,Stratification1.y,diff,state_SVI)
+
       
+
+      #print(g1)
+      #print(g2)
       
-      for (state in states){
-        print(g1)
-        diff = g1[which(g1$state == state),]$DataValue - 
-          g2[which(g2$state == state),]$DataValue
-        
-        diff_arr = append(diff_arr,list(c(state,i,j,diff)))
-      }
+      slope = summary(lm(diff~state_SVI,g2))$coefficients[2]
+      rsqadj = summary(lm(diff~state_SVI,g2))$adj.r.squared
+      
+      diff_arr = append(diff_arr,list(c(i,j,slope,rsqadj)))
+      
 
     }
     
   }
-  return()
+  heatmap_df = as.data.frame(do.call(rbind,diff_arr))%>%
+    rename(c("group1" = V1,
+             "group2" = V2,
+             "slope" = V3,
+             "rsqadj" = V4))%>%
+    mutate(slope = as.numeric(slope))%>%
+    mutate(rsqadj = as.numeric(rsqadj))
+  heatmap_df$rsqadj[is.nan(heatmap_df$rsqadj)]<-0
+  
+  return(heatmap_df)
 }
 
-diff_arr = heatmap(CDI_2018,SVI_2018)
+heatmap_df = heatmap_plot(CDI_2018,SVI_2018)
+
+
 
 ```
 
+```{r heatmaptest}
 
-```{r fit}
-c1 = list(c(1,2,3))
-c2 = list(c(3,2,1))
-
-c(c1,c2)
-
+ggplot(heatmap_df,aes(x=group1,y=group2,fill = slope,size = rsqadj))+
+  geom_tile()
 ```
 
 
