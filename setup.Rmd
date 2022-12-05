@@ -148,11 +148,13 @@ heatmap_plot = function(cdi, svi){
     mutate(slope = as.numeric(slope))%>%
     mutate(rsqadj = as.numeric(rsqadj))
   heatmap_df$rsqadj[is.nan(heatmap_df$rsqadj)]<-0
-  
-  return(heatmap_df)
+  p <-ggplot(heatmap_df,aes(x=group1,y=group2,fill = slope,size = rsqadj))+
+    geom_tile()
+
+  return(ggplotly(p))
 }
 
-heatmap_df = heatmap_plot(CDI_2018,SVI_2018)
+heatmap_plot(CDI_2018,SVI_2018)
 
 
 
@@ -160,8 +162,7 @@ heatmap_df = heatmap_plot(CDI_2018,SVI_2018)
 
 ```{r heatmaptest}
 
-ggplot(heatmap_df,aes(x=group1,y=group2,fill = slope,size = rsqadj))+
-  geom_tile()
+
 ```
 
 

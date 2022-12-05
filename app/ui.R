@@ -48,6 +48,11 @@ shinyUI(fluidPage(
           plotlyOutput('svidiff')
         ),
       ),
+      tabPanel("Heatmap",
+      fluidRow(
+        plotlyOutput('heatmap')
+        ),
+      ),      
       
       
     ),
