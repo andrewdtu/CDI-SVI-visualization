@@ -32,7 +32,7 @@ library(plotly)
 
 
 #census_SVI = read_csv('SVI2020_US.csv')
-county_SVI = read_csv('SVI2018_US_COUNTY.csv')
+#county_SVI = read_csv('SVI2018_US_COUNTY.csv')
 
 CDI_fulldata = read_csv('CDI_data.csv')
 
@@ -41,7 +41,7 @@ CDI_fulldata = read_csv('CDI_data.csv')
 
 SVI_2010 = read_csv('SVI2010_US.csv')%>%
   mutate(year = 2010)
-SVI_2014 = read_csv('SVI2014_US.csv')%>%
+SVI_2014 = read_csv('SVI2014_US_COUNTY.csv')%>%
   mutate(year = 2014)
 SVI_2016 = read_csv('SVI2016_US_COUNTY.csv')%>%
   mutate(year = 2016)
@@ -53,15 +53,15 @@ SVI_2020 = read_csv('SVI2020_US_COUNTY.csv')%>%
 
 
 ```{r 2018cdi}
-CDI_data%>%
-  filter(Topic == 'Cardiovascular Disease')%>%
-  #group_by(Question)%>%
-  filter(Question =='Mortality from total cardiovascular diseases')%>%
-  filter(DataValueTypeID == 'AGEADJRATE')%>%
-  filter(is.na(DatavalueFootnote))
+# read_csv("CDI_2018.csv")%>%
+#   filter(Topic == 'Cardiovascular Disease')%>%
+#   #group_by(Question)%>%
+#   filter(Question =='Mortality from total cardiovascular diseases')%>%
+#   filter(DataValueTypeID == 'AGEADJRATE')%>%
+#   filter(is.na(DatavalueFootnote))
 ```
 ```{r SVI}
-state_SVI = county_SVI%>%
+state_SVI = SVI_2018%>%
   group_by(ST_ABBR)%>%
   filter(SPL_THEMES>0)%>%
   mutate(popxsvi = E_TOTPOP*SPL_THEMES)%>%
@@ -73,8 +73,9 @@ state_SVI = county_SVI%>%
 
 
 ```{r gender difference rate of death from heart disease}
-
-heart = CDI_data%>%
+CDI_2018 = read_csv("CDI_2018.csv")
+heart = CDI_2018%>%
+  mutate(state = LocationAbbr)%>%
   filter(Topic == 'Cardiovascular Disease')%>%
   #group_by(Question)%>%
   filter(Question =='Mortality from total cardiovascular diseases')%>%
@@ -83,16 +84,62 @@ heart = CDI_data%>%
   filter(is.na(DatavalueFootnote))%>%
   select(LocationAbbr,Stratification1,DataValue)%>%
   pivot_wider(names_from = Stratification1,values_from = DataValue)%>%
-  mutate(gender_diff = Male-Female)%>%
   mutate(state = LocationAbbr)%>%
-  left_join(state_SVI)
-
-
-plot_usmap(regions = 'states', data = heart, values = 'gender_diff')+
-   labs(title = "Heart disease mortality rate gender difference", subtitle = "2018 State level case per 100k")+
-  scale_fill_distiller(palette = 'Oranges', direction = 1, name = 'M-F case rate per 100k')+
-  theme(legend.position = "right")
+  left_join(state_SVI,"state")
 ```
+```{r heatmap}
+ 
+heatmap = function(cdi, svi){
+  df = cdi%>%
+    mutate(state = LocationAbbr)%>%
+    filter(Topic == 'Cardiovascular Disease')%>%
+    #group_by(Question)%>%
+    filter(Question =='Mortality from total cardiovascular diseases')%>%
+    filter(DataValueTypeID == 'AGEADJRATE')%>%
+    select(state,Stratification1,DataValue)
+  
+  states = unique(df$state)
+  groups = unique(df$Stratification1)
+  diff_arr = list()
+  for (i in groups){
+    g1 = df%>%
+      filter(Stratification1 == i)
+      
+    for (j in groups){
+
+      
+      g2 = df%>%
+        filter(Stratification1 == j)
+      
+      
+      for (state in states){
+        print(g1)
+        diff = g1[which(g1$state == state),]$DataValue - 
+          g2[which(g2$state == state),]$DataValue
+        
+        diff_arr = append(diff_arr,list(c(state,i,j,diff)))
+      }
+
+    }
+    
+  }
+  return()
+}
+
+diff_arr = heatmap(CDI_2018,SVI_2018)
+
+```
+
+
+```{r fit}
+c1 = list(c(1,2,3))
+c2 = list(c(3,2,1))
+
+c(c1,c2)
+
+```
+
+
 ```{r plot}
 ggplot(heart,aes(x = state_SVI,y = gender_diff))+
   geom_point()+
