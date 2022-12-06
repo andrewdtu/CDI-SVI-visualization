@@ -214,7 +214,7 @@ shinyServer(function(input, output) {
   
   
   output$heatmap = renderPlotly({
-    plot_heatmap(CDI_data(),state_SVI())
+    plot_heatmap(CDI_data(),state_SVI(),input$topic,input$question,input$datatype)
   })
   
 

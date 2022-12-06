@@ -28,14 +28,13 @@ plot_diff <- function(data,location,value){
     )
 }
 
-plot_heatmap = function(cdi, svi){
+plot_heatmap = function(cdi, svi, topic, question,datatype){
   df = cdi%>%
     mutate(state = LocationAbbr)%>%
-    filter(Topic == 'Cardiovascular Disease')%>%
-    #group_by(Question)%>%
-    filter(Question =='Mortality from total cardiovascular diseases')%>%
-    filter(DataValueTypeID == 'AGEADJRATE')%>%
-    select(state,Stratification1,DataValue)
+    filter(Topic == topic)%>%
+    filter(Question == question)%>%
+    filter(data_type == datatype)%>%
+    select(state,Stratification1,DataValue,data_type)
   
 
   
@@ -80,7 +79,8 @@ plot_heatmap = function(cdi, svi){
     mutate(rsqadj = as.numeric(rsqadj))
   heatmap_df$rsqadj[is.nan(heatmap_df$rsqadj)]<-0
   p <-ggplot(heatmap_df,aes(x=group1,y=group2,fill = slope,size = rsqadj))+
-    geom_tile()
+    geom_tile()+
+    scale_fill_distiller(palette = "RdBu")
   
   return(ggplotly(p))
 }
