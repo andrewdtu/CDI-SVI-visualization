@@ -19,14 +19,17 @@ state_SVI_full = read_csv('SVI_full.csv')
 
 
 
-plot_diff <- function(data,location,value){
+plot_diff <- function(data,location,value,year,question,legend_title){
   plot_geo(data,locationmode='USA-states')%>%
-    add_trace(locations = location,z = value, color = value, colors = 'Oranges')%>%
+    add_trace(locations = location, z = value, color = value, colors = 'Oranges')%>%
     layout(
-      title = 'Title WIP: make it some combination of the options',
+      title = paste(year,question),
+     
       geo = c(scope = 'usa',projection = list(type = 'albers usa'))
-    )
+    )%>%
+    colorbar(title = legend_title)
 }
+
 
 plot_heatmap = function(cdi, svi, topic, question,datatype){
   df = cdi%>%
@@ -57,9 +60,7 @@ plot_heatmap = function(cdi, svi, topic, question,datatype){
         select(Stratification1.x,Stratification1.y,diff,state_SVI)
       
       
-      
-      #print(g1)
-      #print(g2)
+
       
       slope = summary(lm(diff~state_SVI,g2))$coefficients[2]
       rsqadj = summary(lm(diff~state_SVI,g2))$adj.r.squared

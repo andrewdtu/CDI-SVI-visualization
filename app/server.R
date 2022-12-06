@@ -188,13 +188,13 @@ shinyServer(function(input, output) {
       df()%>%
         plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
         add_markers(y = ~diff) %>% 
-        layout(title = paste(input$question, "for", input$group1, "Vs State SVI"), yaxis = list(title = input$datatype)) %>% 
+        layout(title = paste(input$question, "for", input$group1, "Vs State SVI"), yaxis = list(title = input$datatype),xaxis = list(title = "Social Vulnerability Index per State")) %>% 
         add_lines(x = ~state_SVI, y = fitted(fit))
     }else{
       df()%>%
       plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
       add_markers(y = ~diff) %>% 
-      layout(title = paste("The Difference Between", input$group1 ,"and", input$group2, "on", input$question, "Vs State SVI"), yaxis = list(title = input$datatype)) %>% 
+      layout(title = paste("The Difference Between", input$group1 ,"and", input$group2, "on", input$question, "Vs State SVI"), yaxis = list(title = input$datatype),xaxis = list("Social Vulnerability Index per State")) %>% 
       add_lines(x = ~state_SVI, y = fitted(fit)) #%>% 
       # legend('topright', legend = rp, bty = 'n')
     }
@@ -209,7 +209,7 @@ shinyServer(function(input, output) {
   })
   
   output$diffmap = renderPlotly({
-    plot_diff(df(),~state,~diff)
+    plot_diff(df(),~state,~diff,input$year,input$question,input$datatype)
   })
   
   
