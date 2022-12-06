@@ -89,18 +89,84 @@ shinyServer(function(input, output) {
     selectInput('group2', label = 'Group 2', choices = group2.options, selected = 'Female')
   })
   
+  output$useDiffButtons = renderUI({
+    radioButtons(
+      inputId = 'diffChoice',
+      label = "Use difference bettwen Group1 and Group2?", 
+      choices = c(
+        "Use only Group1" = "noDiff", 
+        "Use difference between Group 1 and Group 2" = "useDiff"))
+  })
+  
   df = reactive({
-    CDI_data()%>%
-      filter(Topic == input$topic)%>%
-      filter(Question == input$question)%>%
-      filter(data_type == input$datatype)%>%
-      filter(Stratification1 %in% c(input$group1,input$group2))%>%
-      select(LocationAbbr,Stratification1,DataValue)%>%
-      pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
-      mutate(diff = get(input$group1) - get(input$group2))%>%
-      rename(state = LocationAbbr)%>%
-      drop_na()%>%
-      left_join(state_SVI())
+    if(input$diffChoice == "noDiff"){
+      CDI_data()%>%
+        filter(Topic == input$topic)%>%
+        filter(Question == input$question)%>%
+        filter(data_type == input$datatype)%>%
+        filter(Stratification1 == input$group1) %>% 
+        select(LocationAbbr,Stratification1,DataValue)%>%
+        pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
+        mutate(diff = get(input$group1)) %>% 
+        rename(state = LocationAbbr)%>%
+        drop_na()%>%
+        left_join(state_SVI()) %>% 
+        drop_na()
+    } else {
+      CDI_data()%>%
+        filter(Topic == input$topic)%>%
+        filter(Question == input$question)%>%
+        filter(data_type == input$datatype)%>%
+        filter(Stratification1 %in% c(input$group1,input$group2)) %>% 
+        select(LocationAbbr,Stratification1,DataValue)%>%
+        pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
+        mutate(diff = get(input$group1) - get(input$group2)) %>% 
+        rename(state = LocationAbbr)%>%
+        drop_na()%>%
+        left_join(state_SVI()) %>% 
+        drop_na()
+    }
+    
+    # CDI_data()%>%
+    #   filter(Topic == input$topic)%>%
+    #   filter(Question == input$question)%>%
+    #   filter(data_type == input$datatype)%>%
+    #   filter(
+    #     if_else(condition = input$diffChoice == "noDiff", 
+    #             true = Stratification1 == input$group1, 
+    #             false = Stratification1 %in% c(input$group1,input$group2))) %>% 
+    #   select(LocationAbbr,Stratification1,DataValue)%>%
+    #   pivot_wider(names_from = Stratification1, values_from = DataValue)%>%
+    #   mutate(
+    #     diff = if_else(
+    #       condition = input$diffChoice == "noDiff", 
+    #       true = get(input$group1),
+    #       false = get(input$group1) - get(input$group2))) %>% 
+    #   rename(state = LocationAbbr)%>%
+    #   drop_na()%>%
+    #   left_join(state_SVI())
+    
+    # tempdf = CDI_data()%>%
+    #   filter(Topic == input$topic)%>%
+    #   filter(Question == input$question)%>%
+    #   filter(data_type == input$datatype)
+    # 
+    # tempdf = tempdf %>% 
+    #   if_else(condition = input$diffChoice == "noDiff", 
+    #           true = filter(Stratification1 == input$group1),
+    #           false = filter(Stratification1 %in% c(input$group1,input$group2)))%>%
+    #   select(LocationAbbr,Stratification1,DataValue)
+    # 
+    # tempdf = tempdf %>% 
+    #   pivot_wider(names_from = Stratification1, values_from = DataValue)
+    # 
+    # tempdf = tempdf %>% 
+    #     if_else(condition = input$diffChoice == "noDiff",
+    #             true = mutate(diff = input$group1),
+    #             false = mutate(diff = get(input$group1) - get(input$group2)))%>%
+    #     rename(state = LocationAbbr)%>%
+    #     drop_na()%>%
+    #     left_join(state_SVI())
   })
   
   output$table=renderDataTable({
@@ -109,11 +175,36 @@ shinyServer(function(input, output) {
   
   output$svidiff = renderPlotly({
     fit = lm(data = df(), diff~state_SVI)
-    df()%>%
+    #print(summary(fit))
+    # test = summary(fit)
+    # rp = vector('expression', 2)
+    # rp[1] = substitute(expression(italic(R)^2 == MYVALUE),
+    #                    list(MYVALUE = format(test$adj.r.squared, dig=3)))[2]
+    # rp[2] = substitute(expression(italic(p) == MYOTHERVALUE),
+    #                    list(MYOTHERVALUE = format(test$coefficients[2, 4], dig=2)))[2]
+    
+    if(input$diffChoice == "noDiff") {
+      df()%>%
+        plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
+        add_markers(y = ~diff) %>% 
+        layout(title = paste(input$question, "for", input$group1, "Vs State SVI"), yaxis = list(title = input$datatype)) %>% 
+        add_lines(x = ~state_SVI, y = fitted(fit))
+    }else{
+      df()%>%
       plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
       add_markers(y = ~diff) %>% 
-      add_lines(x = ~state_SVI, y = fitted(fit))
+      layout(title = paste("The Difference Between", input$group1 ,"and", input$group2, "on", input$question, "Vs State SVI"), yaxis = list(title = input$datatype)) %>% 
+      add_lines(x = ~state_SVI, y = fitted(fit)) #%>% 
+      # legend('topright', legend = rp, bty = 'n')
+    }
+    
+    
       
+  })
+  
+  output$svifit = renderPrint({
+    fit = lm(data = df(), diff~state_SVI)
+    summary(fit)
   })
   
   output$diffmap = renderPlotly({

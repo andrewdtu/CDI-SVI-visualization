@@ -25,7 +25,11 @@ shinyUI(fluidPage(
     ),
     
     fluidRow(
-      column(4, uiOutput('datatype')),
+      column(4, uiOutput('datatype'))
+    ),
+    
+    fluidRow(
+      column(4, uiOutput('useDiffButtons')),
       column(4, uiOutput('group1')),
       column(4, uiOutput('group2'))
     ),
@@ -45,7 +49,8 @@ shinyUI(fluidPage(
       
       tabPanel("SVI and Disparity",
         fluidRow(
-          plotlyOutput('svidiff')
+          plotlyOutput('svidiff'),
+          verbatimTextOutput("svifit")
         ),
       ),
       
