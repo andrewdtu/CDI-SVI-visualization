@@ -18,15 +18,14 @@ shinyUI(fluidPage(
     titlePanel("2018 Chronic Diseases in the US and Social Vulnerability Index Correlation"),
     
     fluidRow(
-      column(4, uiOutput('year')),
-      column(4, uiOutput('topic')),
-      column(4, uiOutput('questions'))
+      column(3, uiOutput('year')),
+      column(3, uiOutput('topic')),
+      column(3, uiOutput('questions')),
+      column(3, uiOutput('datatype'))
       
     ),
     
-    fluidRow(
-      column(4, uiOutput('datatype'))
-    ),
+
     
     fluidRow(
       column(4, uiOutput('useDiffButtons')),

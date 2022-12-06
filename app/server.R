@@ -93,7 +93,7 @@ shinyServer(function(input, output) {
   output$useDiffButtons = renderUI({
     radioButtons(
       inputId = 'diffChoice',
-      label = "Use difference bettwen Group1 and Group2?", 
+      label = "Use difference between Group1 and Group2?", 
       choices = c(
         "Use only Group1" = "noDiff", 
         "Use difference between Group 1 and Group 2" = "useDiff"))
