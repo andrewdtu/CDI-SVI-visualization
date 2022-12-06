@@ -53,6 +53,11 @@ shinyUI(fluidPage(
           verbatimTextOutput("svifit")
         ),
       ),
+      tabPanel("Heatmap",
+      fluidRow(
+        plotlyOutput('heatmap')
+        ),
+      ),      
       
       
     ),

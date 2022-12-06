@@ -38,7 +38,8 @@ shinyServer(function(input, output) {
   
   state_SVI = reactive({
     state_SVI_full%>%
-      filter(year == input$year)
+      filter(year == input$year)%>%
+      select(state,state_SVI)
   })
   
   output$topic = renderUI({
@@ -209,6 +210,11 @@ shinyServer(function(input, output) {
   
   output$diffmap = renderPlotly({
     plot_diff(df(),~state,~diff)
+  })
+  
+  
+  output$heatmap = renderPlotly({
+    plot_heatmap(CDI_data(),state_SVI())
   })
   
 
