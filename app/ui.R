@@ -40,11 +40,7 @@ shinyUI(fluidPage(
          plotlyOutput('diffmap')
        ),
       ),
-      tabPanel("Table",
-        fluidRow(
-         dataTableOutput('table')
-        ),
-      ),
+
       
       tabPanel("SVI and Disparity",
         fluidRow(
@@ -57,7 +53,11 @@ shinyUI(fluidPage(
         plotlyOutput('heatmap')
         ),
       ),      
-      
+      tabPanel("Table",
+        fluidRow(
+         dataTableOutput('table')
+        ),
+      ),      
       
     ),
     

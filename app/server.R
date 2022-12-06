@@ -46,7 +46,7 @@ shinyServer(function(input, output) {
     topic.options = CDI_data()%>%
     {unique(.$Topic)}
     
-  selectInput('topic',label = 'Chronic Disease', choices = topic.options, selected = 'Cardiovascular Disease')
+    selectInput('topic',label = 'Chronic Disease', choices = topic.options, selected = 'Cardiovascular Disease')
   })
     
     
@@ -186,17 +186,21 @@ shinyServer(function(input, output) {
     
     if(input$diffChoice == "noDiff") {
       df()%>%
-        plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
-        add_markers(y = ~diff) %>% 
-        layout(title = paste(input$question, "for", input$group1, "Vs State SVI"), yaxis = list(title = input$datatype),xaxis = list(title = "Social Vulnerability Index per State")) %>% 
-        add_lines(x = ~state_SVI, y = fitted(fit))
-    }else{
-      df()%>%
-      plot_ly( x = ~state_SVI, y = ~diff, text = ~state, type = "scatter")%>%
-      add_markers(y = ~diff) %>% 
-      layout(title = paste("The Difference Between", input$group1 ,"and", input$group2, "on", input$question, "Vs State SVI"), yaxis = list(title = input$datatype),xaxis = list("Social Vulnerability Index per State")) %>% 
-      add_lines(x = ~state_SVI, y = fitted(fit)) #%>% 
-      # legend('topright', legend = rp, bty = 'n')
+        plot_ly(text = ~state, type = "scatter")%>%
+        add_markers(x = ~state_SVI, y = ~diff, name = "State", hovertemplate = "SVI: %{x} <br>Rate: %{y}") %>% 
+        layout(title = paste(input$question, "for", input$group1, "Vs State SVI"), 
+               yaxis = list(title = input$datatype),
+               xaxis = list(title = "Social Vulnerability Index per State")) %>% 
+        add_lines(x = ~state_SVI, y = fitted(fit), name = "Linear Regression", hoverinfo = "none")
+      }else{
+        df()%>%
+        plot_ly(text = ~state, type = "scatter")%>%
+          add_markers(x = ~state_SVI, y = ~diff, name = "State", hovertemplate = "SVI: %{x} <br>Rate: %{y}") %>% 
+        layout(title = paste("The Difference Between", input$group1 ,"and", input$group2, "on", input$question, "Vs State SVI"), 
+               yaxis = list(title = input$datatype),
+               xaxis = list(title = "Social Vulnerability Index per State")) %>% 
+        add_lines(x = ~state_SVI, y = fitted(fit), name = "Linear Regression", hoverinfo = "none") #%>% 
+        # legend('topright', legend = rp, bty = 'n')
     }
     
     
