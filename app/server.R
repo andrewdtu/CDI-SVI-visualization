@@ -77,7 +77,7 @@ shinyServer(function(input, output) {
       filter(data_type == input$datatype)%>%
       {unique(.$Stratification1)}
     
-    selectInput('group1', label = 'Group 1', choices = group1.options, selected = 'Male')
+    selectInput('group1', label = 'Group 1', choices = group1.options, selected = 'Overall')
   })
   
   output$group2 = renderUI({
@@ -191,7 +191,11 @@ shinyServer(function(input, output) {
         layout(title = paste(input$question, "for", input$group1, "Vs State SVI"), 
                yaxis = list(title = input$datatype),
                xaxis = list(title = "Social Vulnerability Index per State")) %>% 
-        add_lines(x = ~state_SVI, y = fitted(fit), name = "Linear Regression", hoverinfo = "none")
+        add_lines(x = ~state_SVI, y = fitted(fit), name = "Linear Regression", hoverinfo = "none")%>%
+        add_annotations(x= 0.1, y = 0.9, xref = "paper", yref="paper", showarrow = F, 
+                        text = paste("y =",signif(fit$coefficients[2],4),"x + ",signif(fit$coefficients[1],4), 
+                                     "<br> R-square Adjusted:",signif(summary(fit)$adj.r.squared,4),
+                                     "<br> P-value:", signif(lmp(fit), 4) ))
       }else{
         df()%>%
         plot_ly(text = ~state, type = "scatter")%>%
@@ -199,8 +203,11 @@ shinyServer(function(input, output) {
         layout(title = paste("The Difference Between", input$group1 ,"and", input$group2, "on", input$question, "Vs State SVI"), 
                yaxis = list(title = input$datatype),
                xaxis = list(title = "Social Vulnerability Index per State")) %>% 
-        add_lines(x = ~state_SVI, y = fitted(fit), name = "Linear Regression", hoverinfo = "none") #%>% 
-        # legend('topright', legend = rp, bty = 'n')
+        add_lines(x = ~state_SVI, y = fitted(fit), name = "Linear Regression", hoverinfo = "none")%>% 
+        add_annotations(x= 0.1, y = 0.9, xref = "paper", yref="paper", showarrow = F, 
+                        text = paste("y =",signif(fit$coefficients[2],4),"x + ",signif(fit$coefficients[1],4), 
+                                     "<br> R-square Adjusted:",signif(summary(fit)$adj.r.squared,4),
+                                     "<br> P-value:", signif(lmp(fit), 4) ))
     }
     
     

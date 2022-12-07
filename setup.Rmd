@@ -235,13 +235,14 @@ CDI_fulldata%>%
 
 ```
 ```{r test}
-#CDI_2018 = read_csv('CDI_2018.csv')
-# SVI_2010_new%>%
-#   group_by(year,ST_ABBR)%>%
-#   filter(SPL_THEMES>0)%>%
-#   mutate(popxsvi = E_TOTPOP*SPL_THEMES)%>%
-#   summarise(state_totpop = sum(E_TOTPOP),state_SVI = sum(popxsvi)/state_totpop)%>%
-#   mutate(state = ST_ABBR)%>%
-#   select(state,state_SVI)%>%
-#   write_csv('SVI_full.csv')
+fit = lm(mpg~cyl,mtcars)
+lmp <- function (modelobject) {
+    if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+    f <- summary(modelobject)$fstatistic
+    p <- pf(f[1],f[2],f[3],lower.tail=F)
+    attributes(p) <- NULL
+    return(p)
+}
+
+summary(fit)
 ```
